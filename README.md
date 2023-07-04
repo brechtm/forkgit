@@ -20,7 +20,7 @@ Remote checkouts
 1. Clone this repository.
 
 2. For each git checkout on the remote server, create a directory locally and
-   create a file `.gitfork` inside with these contents (replacing values within
+   create a file `.forkgit` inside with these contents (replacing values within
    `<>`):
    ```
    remote-host = <remote machine's hostname>
