@@ -188,10 +188,13 @@ def main():
         if not real_git:
             raise SystemExit(EXIT_COMMAND_NOT_FOUND)
         argv = [real_git] + originalargs
-        
-        # Fork sets GIT_EXEC_PATH (why?), breaking forkgit for local checkouts
+
+        # Older versions of Fork sets GIT_EXEC_PATH (why?), breaking forkgit for local checkouts
         # https://github.com/fork-dev/Tracker/issues/929#issuecomment-1373919511
-        environment.pop('GIT_EXEC_PATH')
+        try:
+            environment.pop('GIT_EXEC_PATH')
+        except KeyError:
+            pass
 
     os.execvpe(argv[0], argv, environment)
 
