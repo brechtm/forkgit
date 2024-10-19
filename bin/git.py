@@ -14,7 +14,7 @@ from shutil import which
 from subprocess import run
 
 
-GIT_BINARY = 'git.exe' if os.name == 'nt' else 'git'
+LOCAL_GIT_BINARY = 'git.exe' if os.name == 'nt' else 'git'
 EXIT_COMMAND_NOT_FOUND = 127
 EXIT_SSHFS_HOST_MISMATCH = 1
 SSH_BINARY = 'ssh'
@@ -104,7 +104,7 @@ def main():
         sshlogin = None
 
 
-    if sshlogin and command == GIT_BINARY:
+    if sshlogin and command == LOCAL_GIT_BINARY:
         preserve_isatty = True
         if originalargs in (['rev-parse', '--absolute-git-dir'],
                             ['rev-parse', '--show-toplevel']):
@@ -120,7 +120,7 @@ def main():
                 originalargs[i] = f'--file={remote_path}'
     
     # Fork checks the .git/logs/HEAD timestamp for highlighting the HEAD commit
-    if ((command == GIT_BINARY and originalargs[0] in ['commit', 'fetch', 'pull'])
+    if ((command == LOCAL_GIT_BINARY and originalargs[0] in ['commit', 'fetch', 'pull'])
             and (sshlogin or git_dir == '.')):
         for logs_head in ('.git/logs/HEAD', 'logs/HEAD'):
             dotgit_logs_head = Path(local_root) / logs_head
@@ -134,6 +134,7 @@ def main():
     if sshlogin:
         # If the command should be executed on a remote server, generate the
         # execution string to pass into the shell.
+        command, _ = command.split('.exe')
         executed = listtoshc([command] + remoteargs)
 
         # Prepend environment variable declarations
@@ -185,7 +186,7 @@ def main():
         argv += [sshlogin, ttyoption, sshcommand]
 
     else:   # local checkout
-        real_git = which(GIT_BINARY)
+        real_git = which(LOCAL_GIT_BINARY)
         try:
             this_git = __file__
         except NameError:
@@ -194,6 +195,8 @@ def main():
             raise ValueError("forkgit's git should not be in PATH!")
         if not real_git:
             raise SystemExit(EXIT_COMMAND_NOT_FOUND)
+        argv = [real_git, *originalargs]
+
         # Older versions of Fork sets GIT_EXEC_PATH (why?), breaking forkgit for local checkouts
         # https://github.com/fork-dev/Tracker/issues/929#issuecomment-1373919511
         try:
@@ -201,7 +204,7 @@ def main():
         except KeyError:
             pass
 
-    process = run([real_git, *originalargs], env=environment)
+    process = run(argv, env=environment)
     raise SystemExit(process.returncode)
 
 
