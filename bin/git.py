@@ -106,8 +106,7 @@ def main():
     if sshlogin:
         # If the command should be executed on a remote server, generate the
         # execution string to pass into the shell.
-        command, _ = command.split('.exe')
-        executed = listtoshc([command] + remoteargs)
+        executed = listtoshc(['git'] + remoteargs)
 
         # Prepend environment variable declarations
         for variable, value in envpassthrough.items():
