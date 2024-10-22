@@ -20,34 +20,6 @@ EXIT_SSHFS_HOST_MISMATCH = 1
 SSH_BINARY = 'ssh'
 
 
-def which(binary, path=os.environ.get('PATH', '')):
-    """
-    Return the absolute path of an executable with the basename defined by
-    `binary.` If an absolute path is given for `binary`, then the value is
-    `binary` is returned if it is executable. In the event that an
-    executable binary cannot be found, None is returned. This command is
-    analogous to the *nix command "which(1)."
-    """
-    if '/' in binary:
-        if os.access(binary, os.X_OK):
-            return binary
-        return None
-
-    for folder in path.split(';'):
-        # print(folder)
-        try:
-            contents = os.listdir(folder)
-        except Exception:
-            continue
-
-        if binary in contents:
-            binarypath = os.path.abspath(os.path.join(folder, binary))
-            if os.access(binarypath, os.X_OK):
-                return binarypath
-
-    return None
-
-
 def listtoshc(arglist):
     """
     Convert a list of command line arguments to a string that can be
